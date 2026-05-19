@@ -3,9 +3,11 @@
 FROM registry.access.redhat.com/ubi9/openjdk-17:1.20 AS build
 USER root
 WORKDIR /workspace
+ARG GIT_SHA=local
 COPY --chown=185 pom.xml .
 COPY --chown=185 src ./src
-RUN mvn -B -DskipTests -Dquarkus.package.jar.type=fast-jar package
+RUN sed -i "s/^app.git-sha=.*/app.git-sha=${GIT_SHA}/" src/main/resources/application.properties && \
+    mvn -B -DskipTests -Dquarkus.package.jar.type=fast-jar package
 
 # Stage 2: minimal runtime.
 FROM registry.access.redhat.com/ubi9/openjdk-17-runtime:1.20
