@@ -42,8 +42,6 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
-          env:
-            - name: APP_VERSION
-              value: "1.0.0"
-            - name: APP_GIT_SHA
-              value: "seed" # overridden by Tekton via kustomize patch
+          # No env entries here — overlays append per-cluster vars and the
+          # image bakes in APP_GIT_SHA via the Containerfile build arg.
+          env: []
