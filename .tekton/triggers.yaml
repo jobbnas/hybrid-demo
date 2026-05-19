@@ -1,0 +1,105 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: hybrid-demo-github-binding
+  namespace: hybrid-dev
+spec:
+  params:
+    - name: git-revision
+      value: $(body.head_commit.id)
+    - name: git-revision-short
+      value: $(body.head_commit.id)
+    - name: git-repo-url
+      value: $(body.repository.clone_url)
+    - name: git-ref
+      value: $(body.ref)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: hybrid-demo-build-template
+  namespace: hybrid-dev
+spec:
+  params:
+    - name: git-revision
+    - name: git-revision-short
+    - name: git-repo-url
+    - name: git-ref
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: hybrid-demo-build-
+        namespace: hybrid-dev
+      spec:
+        pipelineRef:
+          name: hybrid-demo-build
+        params:
+          - name: git-url
+            value: $(tt.params.git-repo-url)
+          - name: git-revision
+            value: main
+          - name: image-repo
+            value: "image-registry.openshift-image-registry.svc:5000/hybrid-dev/hybrid-demo"
+          - name: image-tag
+            value: $(tt.params.git-revision-short)
+        workspaces:
+          - name: source
+            volumeClaimTemplate:
+              spec:
+                accessModes: [ReadWriteOnce]
+                resources:
+                  requests:
+                    storage: 1Gi
+          - name: dockerconfig
+            secret:
+              secretName: hybrid-demo-registry
+          - name: git-auth
+            secret:
+              secretName: hybrid-demo-git-auth
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: hybrid-demo-listener
+  namespace: hybrid-dev
+spec:
+  serviceAccountName: hybrid-demo-triggers
+  triggers:
+    - name: github-push
+      interceptors:
+        - ref:
+            name: github
+          params:
+            - name: secretRef
+              value:
+                secretName: hybrid-demo-webhook
+                secretKey: secretToken
+            - name: eventTypes
+              value: ["push"]
+        - ref:
+            name: cel
+          params:
+            - name: filter
+              value: "body.ref == 'refs/heads/main' && !(body.head_commit.message.contains('[skip ci]'))"
+      bindings:
+        - ref: hybrid-demo-github-binding
+      template:
+        ref: hybrid-demo-build-template
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: hybrid-demo-listener
+  namespace: hybrid-dev
+  labels:
+    app.kubernetes.io/managed-by: EventListener
+spec:
+  to:
+    kind: Service
+    name: el-hybrid-demo-listener
+  port:
+    targetPort: http-listener
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

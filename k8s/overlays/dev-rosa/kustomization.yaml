@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: hybrid-dev
+resources:
+  - ../../base
+images:
+  - name: hybrid-demo
+    newName: image-registry.openshift-image-registry.svc:5000/hybrid-dev/hybrid-demo
+    newTag: latest # bumped by Tekton on each build
+patches:
+  - target:
+      kind: Deployment
+      name: hybrid-demo
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: CLUSTER_NAME
+          value: rosa-hcp
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: CLUSTER_ROLE
+          value: dev
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: CLUSTER_REGION
+          value: aws
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: APP_MESSAGE
+          value: "AWS-hosted dev environment. Edit me in Dev Spaces."

@@ -1,0 +1,45 @@
+schemaVersion: 2.2.0
+metadata:
+  name: hybrid-demo
+  displayName: Hybrid Demo (Quarkus)
+  description: Quarkus app demonstrating the OpenShift hybrid dev-experience flow.
+  language: Java
+  tags: ["Quarkus", "Java", "OpenShift"]
+  projectType: quarkus
+  version: 1.0.0
+components:
+  - name: tools
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel8:latest
+      memoryLimit: 4Gi
+      mountSources: true
+      env:
+        - name: QUARKUS_HTTP_HOST
+          value: 0.0.0.0
+      endpoints:
+        - name: quarkus-http
+          targetPort: 8080
+          exposure: public
+          protocol: http
+        - name: quarkus-dev
+          targetPort: 5005
+          exposure: internal
+commands:
+  - id: build
+    exec:
+      label: "Build (mvn package)"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "./mvnw -DskipTests package"
+      group:
+        kind: build
+        isDefault: true
+  - id: dev
+    exec:
+      label: "Dev mode (mvn quarkus:dev)"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "./mvnw quarkus:dev -Dquarkus.http.host=0.0.0.0"
+      group:
+        kind: run
+        isDefault: true

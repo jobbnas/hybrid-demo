@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Hybrid Demo — {clusterRole}</title>
+    <style>
+        :root { color-scheme: light; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Red Hat Display', 'Helvetica Neue', system-ui, sans-serif;
+            background: {#if clusterRole is 'prod'}linear-gradient(135deg, #1e2b3a 0%, #0f1419 100%){#else}linear-gradient(135deg, #ff4500 0%, #8b0000 100%){/if};
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .card {
+            background: rgba(0,0,0,0.35);
+            backdrop-filter: blur(12px);
+            border-radius: 18px;
+            padding: 3rem 3.5rem;
+            max-width: 720px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .badge {
+            display: inline-block;
+            background: {#if clusterRole is 'prod'}#0066cc{#else}#ee0000{/if};
+            color: #fff;
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+        }
+        h1 { font-size: 2.5rem; margin: 0 0 0.5rem 0; font-weight: 800; letter-spacing: -0.02em; }
+        .message { font-size: 1.25rem; opacity: 0.92; margin: 0 0 2rem 0; }
+        dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.65rem 1.5rem; margin: 0; font-size: 0.95rem; }
+        dt { font-weight: 600; opacity: 0.75; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.06em; align-self: center; }
+        dd { margin: 0; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.95rem; }
+        .footer { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.12); font-size: 0.8rem; opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="badge">{clusterRole} · {clusterName}</div>
+        <h1>{message}</h1>
+        <p class="message">Running on <strong>{clusterName}</strong> in <strong>{clusterRegion}</strong>.</p>
+        <dl>
+            <dt>Cluster</dt><dd>{clusterName}</dd>
+            <dt>Role</dt><dd>{clusterRole}</dd>
+            <dt>Region</dt><dd>{clusterRegion}</dd>
+            <dt>Version</dt><dd>{appVersion}</dd>
+            <dt>Git SHA</dt><dd>{gitSha}</dd>
+        </dl>
+        <div class="footer">OpenShift Hybrid Demo · Quarkus · Tekton · GitOps</div>
+    </div>
+</body>
+</html>
