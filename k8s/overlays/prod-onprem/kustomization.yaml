@@ -9,7 +9,7 @@ resources:
 images:
   - name: hybrid-demo
     newName: default-route-openshift-image-registry.apps.rosa.rosa-kzg4t.87gd.p3.openshiftapps.com/hybrid-dev/hybrid-demo
-    newTag: ba4c0ee5e6f86c155542a3694f8d76095386e8db
+    newTag: 3da74caaf906600750200acaaec27107659bd5ff
 patches:
   - target:
       kind: Deployment
