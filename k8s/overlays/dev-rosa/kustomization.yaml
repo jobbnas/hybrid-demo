@@ -6,7 +6,7 @@ resources:
 images:
 - name: hybrid-demo
   newName: image-registry.openshift-image-registry.svc:5000/hybrid-dev/hybrid-demo
-  newTag: d36898163a171d1652fd519393acb521a788079b
+  newTag: 3da74caaf906600750200acaaec27107659bd5ff
 patches:
 - patch: |-
     - op: add
