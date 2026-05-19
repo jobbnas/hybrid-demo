@@ -4,11 +4,11 @@ namespace: hybrid-prod
 resources:
   - ../../base
 # Image pulled from the ROSA HCP exposed internal registry.
-# Set ROSA_REGISTRY_HOST in setup/30-argocd-apps.sh; this value is patched in
+# Set default-route-openshift-image-registry.apps.rosa.rosa-kzg4t.87gd.p3.openshiftapps.com in setup/30-argocd-apps.sh; this value is patched in
 # at install time so the prod-onprem overlay points at the public Route.
 images:
   - name: hybrid-demo
-    newName: ROSA_REGISTRY_HOST/hybrid-dev/hybrid-demo
+    newName: default-route-openshift-image-registry.apps.rosa.rosa-kzg4t.87gd.p3.openshiftapps.com/hybrid-dev/hybrid-demo
     newTag: latest # bumped via PR from dev → prod for promotion
 patches:
   - target:
